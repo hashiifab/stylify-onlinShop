@@ -30,60 +30,60 @@ class ProductDetailPage extends StatelessWidget {
         BlocProvider(create: (context) => ProductSizeSelectionCubit()),
         BlocProvider(create: (context) => ButtonStateCubit()),
         BlocProvider(
-            create: (context) =>
-                FavoriteIconCubit()..isFavorite(productEntity.productId))
+          create: (context) =>
+              FavoriteIconCubit()..isFavorite(productEntity.productId), // Memastikan status favorit diambil
+        ),
       ],
       child: Scaffold(
         appBar: BasicAppbar(
           hideBack: false,
           action: FavoriteButton(
-            productEntity: productEntity,
+            productEntity: productEntity, // Menyuntikkan produk untuk tombol favorit
           ),
         ),
         bottomNavigationBar: AddToBag(
           productEntity: productEntity,
         ),
         body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ProductImages(
-                productEntity: productEntity,
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              ProductTitle(
-                productEntity: productEntity,
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              ProductPrice(
-                productEntity: productEntity,
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              SelectedSize(
-                productEntity: productEntity,
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              SelectedColor(
-                productEntity: productEntity,
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              ProductQuantity(
-                productEntity: productEntity,
-              ),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ProductImages(productEntity: productEntity),
+                const SizedBox(height: 20),
+                _productDetails(context),
+                const SizedBox(height: 20),
+                _interactiveOptions(),
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _productDetails(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ProductTitle(productEntity: productEntity),
+        const SizedBox(height: 10),
+        ProductPrice(productEntity: productEntity),
+      ],
+    );
+  }
+
+  Widget _interactiveOptions() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SelectedSize(productEntity: productEntity),
+        const SizedBox(height: 15),
+        SelectedColor(productEntity: productEntity),
+        const SizedBox(height: 15),
+        ProductQuantity(productEntity: productEntity),
+      ],
     );
   }
 }

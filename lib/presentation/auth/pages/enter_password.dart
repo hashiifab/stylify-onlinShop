@@ -22,18 +22,28 @@ class EnterPasswordPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const BasicAppbar(),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
         child: BlocProvider(
           create: (context) => ButtonStateCubit(),
           child: BlocListener<ButtonStateCubit, ButtonState>(
             listener: (context, state) {
               if (state is ButtonFailureState) {
-                var snackbar = SnackBar(
-                  content: Text(state.errorMessage),
-                  behavior: SnackBarBehavior.floating,
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      state.errorMessage,
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                    backgroundColor: Colors.redAccent,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    duration: const Duration(seconds: 3),
+                  ),
                 );
-                ScaffoldMessenger.of(context).showSnackBar(snackbar);
               }
 
               if (state is ButtonSuccessState) {
@@ -43,19 +53,13 @@ class EnterPasswordPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _siginText(context),
-                const SizedBox(
-                  height: 20,
-                ),
-                _passwordField(context),
-                const SizedBox(
-                  height: 20,
-                ),
+                _signinHeader(),
+                const SizedBox(height: 40),
+                _passwordInputField(),
+                const SizedBox(height: 32),
                 _continueButton(context),
-                const SizedBox(
-                  height: 20,
-                ),
-                _forgotPassword(context)
+                const SizedBox(height: 24),
+                _forgotPasswordLink(context),
               ],
             ),
           ),
@@ -64,45 +68,98 @@ class EnterPasswordPage extends StatelessWidget {
     );
   }
 
-  Widget _siginText(BuildContext context) {
+  Widget _signinHeader() {
     return const Text(
       'Sign in',
-      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+      style: TextStyle(
+        fontSize: 32,
+        fontWeight: FontWeight.bold,
+        height: 1.2,
+      ),
     );
   }
 
-  Widget _passwordField(BuildContext context) {
+  Widget _passwordInputField() {
     return TextField(
       controller: _passwordCon,
-      decoration: const InputDecoration(hintText: 'Enter Password'),
+      obscureText: true, // Untuk keamanan
+      decoration: InputDecoration(
+        labelText: 'Password',
+        hintText: 'Enter your password',
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        prefixIcon: const Icon(Icons.lock),
+      ),
+      keyboardType: TextInputType.visiblePassword,
     );
   }
 
   Widget _continueButton(BuildContext context) {
     return Builder(builder: (context) {
       return BasicReactiveButton(
-          onPressed: () {
+        onPressed: () {
+          if (_passwordCon.text.isNotEmpty) {
             signinReq.password = _passwordCon.text;
-            context
-                .read<ButtonStateCubit>()
-                .execute(usecase: SigninUseCase(), params: signinReq);
-          },
-          title: 'Continue');
+            context.read<ButtonStateCubit>().execute(
+                  usecase: SigninUseCase(),
+                  params: signinReq,
+                );
+          } else {
+           ScaffoldMessenger.of(context).showSnackBar(
+  const SnackBar(
+    content: Row(
+      children: [
+        Icon(Icons.lock, color: Colors.white), // Menambahkan ikon kunci untuk menunjukkan masalah password
+        SizedBox(width: 10),
+        Text(
+          'Password cannot be empty.',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.bold, // Menebalkan font untuk penekanan
+          ),
+        ),
+      ],
+    ),
+    backgroundColor: Colors.red, // Warna latar belakang oranye untuk peringatan
+    behavior: SnackBarBehavior.floating, // SnackBar melayang di atas UI
+    shape: RoundedRectangleBorder( // Menambahkan sudut rounded pada SnackBar
+      borderRadius: BorderRadius.all(Radius.circular(12)),
+    ),
+    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8), // Memberikan margin di sekitar SnackBar
+    duration: Duration(seconds: 3), // Durasi tampilan SnackBar
+  ),
+);
+
+          }
+        },
+        title: 'Continue',
+      );
     });
   }
 
-  Widget _forgotPassword(BuildContext context) {
+  Widget _forgotPasswordLink(BuildContext context) {
     return RichText(
-      text: TextSpan(children: [
-        const TextSpan(text: "Forgot password? "),
-        TextSpan(
+      text: TextSpan(
+        children: [
+          const TextSpan(
+            text: "Forgot password ? ",
+            style: TextStyle(color: Colors.white),
+          ),
+          TextSpan(
             text: 'Reset',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.blue,
+            ),
             recognizer: TapGestureRecognizer()
               ..onTap = () {
                 AppNavigator.push(context, ForgotPasswordPage());
               },
-            style: const TextStyle(fontWeight: FontWeight.bold))
-      ]),
+          ),
+        ],
+      ),
     );
   }
 }

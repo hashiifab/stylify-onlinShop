@@ -19,46 +19,87 @@ class MyFavoritesPage extends StatelessWidget {
         title: Text('My Favorites'),
       ),
       body: BlocProvider(
-          create: (context) =>
-              ProductsDisplayCubit(useCase: sl<GetFavortiesProductsUseCase>())
-                ..displayProducts(),
-          child: BlocBuilder<ProductsDisplayCubit, ProductsDisplayState>(
-            builder: (context, state) {
-              if (state is ProductsLoading) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
+        create: (context) =>
+            ProductsDisplayCubit(useCase: sl<GetFavortiesProductsUseCase>())
+              ..displayProducts(),  // Pastikan memuat produk favorit dengan benar
+        child: BlocBuilder<ProductsDisplayCubit, ProductsDisplayState>(
+          builder: (context, state) {
+            if (state is ProductsLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            if (state is ProductsLoaded) {
+              if (state.products.isEmpty) {
+                return _emptyState(); // Jika kosong, tampilkan state kosong
               }
-              if (state is ProductsLoaded) {
-                return _products(state.products);
-              }
+              return _products(state.products); // Jika ada, tampilkan produk
+            }
+            if (state is LoadProductsFailure) {
+              return const Center(
+                child: Text('Please try again'), // Pesan error jika gagal
+              );
+            }
+            return Container();
+          },
+        ),
+      ),
+    );
+  }
 
-              if (state is LoadProductsFailure) {
-                return const Center(
-                  child: Text('Please try again'),
-                );
-              }
-
-              return Container();
-            },
-          )),
+  Widget _emptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/images/empty_order.png',
+              width: 200,
+              height: 200,
+              fit: BoxFit.cover,
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              "Your favorites list is empty.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 18,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              "Browse products and add them to your favorites.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.w400,
+                fontSize: 14,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   Widget _products(List<ProductEntity> products) {
-    return Expanded(
-      child: GridView.builder(
-        itemCount: products.length,
-        padding: const EdgeInsets.all(16),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            childAspectRatio: 0.6),
-        itemBuilder: (BuildContext context, int index) {
-          return ProductCard(productEntity: products[index]);
-        },
+    return GridView.builder(
+      itemCount: products.length,
+      padding: const EdgeInsets.all(16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        childAspectRatio: 0.6,
       ),
+      itemBuilder: (BuildContext context, int index) {
+        return ProductCard(productEntity: products[index]); // Menampilkan produk
+      },
     );
   }
 }

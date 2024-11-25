@@ -10,7 +10,9 @@ import 'package:online_shop/presentation/auth/bloc/age_selection_cubit.dart';
 import 'package:online_shop/presentation/auth/bloc/ages_display_cubit.dart';
 import 'package:online_shop/presentation/auth/bloc/gender_selection_cubit.dart';
 import 'package:online_shop/presentation/auth/widgets/ages.dart';
+import 'package:online_shop/presentation/home/pages/home.dart';
 
+import '../../../common/helper/navigator/app_navigator.dart';
 import '../../../common/widgets/appbar/app_bar.dart';
 import '../../../common/widgets/button/basic_reactive_button.dart';
 
@@ -84,17 +86,17 @@ class GenderAndAgeSelectionPage extends StatelessWidget {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          genderTile(context, 1, 'Men'),
+          genderTile(context, 1, 'Men', Icons.male),
           const SizedBox(
             width: 20,
           ),
-          genderTile(context, 2, 'Women'),
+          genderTile(context, 2, 'Women', Icons.female),
         ],
       );
     });
   }
 
-  Expanded genderTile(BuildContext context, int genderIndex, String gender) {
+  Expanded genderTile(BuildContext context, int genderIndex, String gender, IconData icon) {
     return Expanded(
       flex: 1,
       child: GestureDetector(
@@ -109,11 +111,16 @@ class GenderAndAgeSelectionPage extends StatelessWidget {
                   ? AppColors.primary
                   : AppColors.secondBackground,
               borderRadius: BorderRadius.circular(30)),
-          child: Center(
-            child: Text(
-              gender,
-              style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: context.read<GenderSelectionCubit>().selectedIndex == genderIndex ? Colors.white : AppColors.primary),
+              const SizedBox(width: 8),
+              Text(
+                gender,
+                style: TextStyle(fontWeight: FontWeight.w400, fontSize: 16, color: context.read<GenderSelectionCubit>().selectedIndex == genderIndex ? Colors.white : Colors.white),
+              ),
+            ],
           ),
         ),
       ),
@@ -149,7 +156,10 @@ class GenderAndAgeSelectionPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(30)),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [Text(state), const Icon(Icons.keyboard_arrow_down)],
+            children: [
+              Text(state),
+              const Icon(Icons.keyboard_arrow_down),
+            ],
           ),
         ),
       );
@@ -157,25 +167,95 @@ class GenderAndAgeSelectionPage extends StatelessWidget {
   }
 
   Widget _finishButton(BuildContext context) {
-    return Container(
-      height: 100,
-      color: AppColors.secondBackground,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Center(
-        child: Builder(builder: (context) {
-          return BasicReactiveButton(
-              onPressed: () {
-                userCreationReq.gender =
-                    context.read<GenderSelectionCubit>().selectedIndex;
-                userCreationReq.age =
-                    context.read<AgeSelectionCubit>().selectedAge;
-                context
-                    .read<ButtonStateCubit>()
-                    .execute(usecase: SignupUseCase(), params: userCreationReq);
-              },
-              title: 'Finish');
-        }),
+  return Container(
+    height: 100,
+    color: AppColors.secondBackground,
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: Center(
+      child: Builder(builder: (context) {
+        return BlocListener<ButtonStateCubit, ButtonState>(
+          listener: (context, state) {
+            if (state is ButtonFailureState) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.errorMessage)),
+              );
+            }
+
+            if (state is ButtonSuccessState) {
+              // Navigasi ke halaman Home jika signup berhasil
+              AppNavigator.pushReplacement(context, const HomePage());
+            }
+          },
+          child: BasicReactiveButton(
+            onPressed: () {
+              // Validasi gender dan usia sudah dipilih
+              if (context.read<GenderSelectionCubit>().selectedIndex == 0) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Row(
+        children: [
+          Icon(Icons.error, color: Colors.white), // Menambahkan icon error
+          SizedBox(width: 10),
+          Text(
+            'Please select your gender',
+            style: TextStyle(fontWeight: FontWeight.bold), // Menambah ketebalan font
+          ),
+        ],
       ),
-    );
-  }
+      backgroundColor: Colors.redAccent, // Warna latar belakang merah untuk error
+      behavior: SnackBarBehavior.floating, // SnackBar melayang di atas UI
+      margin: EdgeInsets.all(16), // Memberikan margin di sekitar SnackBar
+      shape: RoundedRectangleBorder( // Memberikan sudut rounded
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+    ),
+  );
+  return;
+}
+
+if (context.read<AgeSelectionCubit>().selectedAge.isEmpty) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Row(
+        children: [
+          Icon(Icons.error, color: Colors.white), // Menambahkan icon error
+          SizedBox(width: 10),
+          Text(
+            'Please select your age',
+            style: TextStyle(fontWeight: FontWeight.bold), // Menambah ketebalan font
+          ),
+        ],
+      ),
+      backgroundColor: Colors.redAccent, // Warna latar belakang merah untuk error
+      behavior: SnackBarBehavior.floating, // SnackBar melayang di atas UI
+      margin: EdgeInsets.all(16), // Memberikan margin di sekitar SnackBar
+      shape: RoundedRectangleBorder( // Memberikan sudut rounded
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+    ),
+  );
+  return;
+}
+
+
+              // Mengassign gender dan age ke userCreationReq
+              userCreationReq.gender =
+                  context.read<GenderSelectionCubit>().selectedIndex;
+              userCreationReq.age =
+                  context.read<AgeSelectionCubit>().selectedAge;
+
+              // Eksekusi use case untuk signup
+              context.read<ButtonStateCubit>().execute(
+                usecase: SignupUseCase(),
+                params: userCreationReq,
+              );
+            },
+            title: 'Finish',
+          ),
+        );
+      }),
+    ),
+  );
+}
+
 }

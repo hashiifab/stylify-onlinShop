@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:online_shop/core/configs/theme/app_colors.dart';
 import 'package:online_shop/presentation/settings/pages/my_notification_page.dart';
-import 'package:online_shop/presentation/settings/pages/my_orders.dart';
 // Gantilah dengan halaman pengaturan notifikasi
 
-class MyOrdersTile extends StatelessWidget {
-  const MyOrdersTile({super.key});
+class NotificationsTile extends StatelessWidget {
+  const NotificationsTile({super.key});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Navigasi ke halaman 
+        // Navigasi ke halaman pengaturan notifikasi
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const MyOrdersPage()),
+          MaterialPageRoute(builder: (context) => const NotificationsSettingsPage()),
         );
       },
       child: Container(
@@ -27,7 +26,7 @@ class MyOrdersTile extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'My Orders',
+              'Notifications',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
             Icon(

@@ -13,126 +13,135 @@ class ProductOrderedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 100,
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-          color: AppColors.secondBackground,
-          borderRadius: BorderRadius.circular(8)),
+        color: AppColors.secondBackground,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            flex: 4,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: Container(
-                    width: 90,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        image: DecorationImage(
-                            fit: BoxFit.fill,
-                            image: NetworkImage(
-                                ImageDisplayHelper.generateProductImageURL(
-                                    productOrderedEntity.productImage))),
-                        borderRadius: BorderRadius.circular(4)),
-                  ),
+          // Gambar Produk
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: SizedBox(
+              width: 90, // Ukuran tetap
+              height: 90, // Sesuai dengan ukuran yang diinginkan
+              child: Image.network(
+                ImageDisplayHelper.generateProductImageURL(
+                    productOrderedEntity.productImage),
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  color: Colors.grey[300],
+                  child: const Icon(Icons.broken_image, color: Colors.grey),
                 ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Expanded(
-                  flex: 6,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        productOrderedEntity.productTitle,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w500, fontSize: 16),
-                      ),
-                      Row(
-                        children: [
-                          Text.rich(
-                              overflow: TextOverflow.ellipsis,
-                              TextSpan(
-                                  text: 'Size - ',
-                                  style: const TextStyle(
-                                      color: Colors.grey,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 10),
-                                  children: [
-                                    TextSpan(
-                                      text: productOrderedEntity.productSize,
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 10),
-                                    )
-                                  ])),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text.rich(
-                              overflow: TextOverflow.ellipsis,
-                              TextSpan(
-                                  text: 'Color - ',
-                                  style: const TextStyle(
-                                      color: Colors.grey,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 10),
-                                  children: [
-                                    TextSpan(
-                                      text: productOrderedEntity.productColor,
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 10),
-                                    )
-                                  ])),
-                        ],
-                      )
-                    ],
-                  ),
-                )
-              ],
+              ),
             ),
           ),
+
+          const SizedBox(width: 12), // Spasi antar elemen
+
+          // Detail Produk
           Expanded(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  productOrderedEntity.productTitle,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.white,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    // Ukuran Produk
+                    Text.rich(
+                      TextSpan(
+                        text: 'Size: ',
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: productOrderedEntity.productSize,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    // Warna Produk
+                    Text.rich(
+                      TextSpan(
+                        text: 'Color: ',
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: productOrderedEntity.productColor,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
                 Text(
                   '\$${productOrderedEntity.totalPrice}',
                   style: const TextStyle(
-                      fontWeight: FontWeight.w500, fontSize: 14),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    context
-                        .read<CartProductsDisplayCubit>()
-                        .removeProduct(productOrderedEntity);
-                  },
-                  child: Container(
-                    height: 23,
-                    width: 23,
-                    decoration: const BoxDecoration(
-                        color: Color(0xffFF8383), shape: BoxShape.circle),
-                    child: const Icon(
-                      Icons.remove,
-                      size: 15,
-                    ),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: Colors.white,
                   ),
-                )
+                ),
               ],
             ),
-          )
+          ),
+
+          // Tombol Hapus
+          GestureDetector(
+            onTap: () {
+              context
+                  .read<CartProductsDisplayCubit>()
+                  .removeProduct(productOrderedEntity);
+            },
+            child: Container(
+              height: 30,
+              width: 30,
+              decoration: const BoxDecoration(
+                color: Color(0xffFF8383),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.remove,
+                color: Colors.white,
+                size: 16,
+              ),
+            ),
+          ),
         ],
       ),
     );

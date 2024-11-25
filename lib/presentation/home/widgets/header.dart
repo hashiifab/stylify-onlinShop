@@ -32,7 +32,7 @@ class Header extends StatelessWidget {
                 children: [
                   _profileImage(state.user, context),
                   _gender(state.user),
-                  _card(context)
+                  _cart(context),
                 ],
               );
             }
@@ -48,14 +48,16 @@ class Header extends StatelessWidget {
       onTap: () {
         AppNavigator.push(context, const SettingsPage());
       },
-      child: Container(
-        height: 40,
-        width: 40,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        height: 50,
+        width: 50,
         decoration: BoxDecoration(
             image: DecorationImage(
                 image: user.image.isEmpty
                     ? const AssetImage(AppImages.profile)
-                    : NetworkImage(user.image)),
+                    : NetworkImage(user.image) as ImageProvider,
+                fit: BoxFit.cover),
             color: Colors.red,
             shape: BoxShape.circle),
       ),
@@ -69,30 +71,51 @@ class Header extends StatelessWidget {
       decoration: BoxDecoration(
           color: AppColors.secondBackground,
           borderRadius: BorderRadius.circular(100)),
-      child: Center(
-        child: Text(
-          user.gender == 1 ? 'Men' : 'Women',
-          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-        ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            user.gender == 1 ? Icons.male : Icons.female,
+            color: AppColors.primary,
+            size: 18,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            user.gender == 1 ? 'Men' : 'Women',
+            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _card(BuildContext context) {
+  Widget _cart(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        AppNavigator.push(context, const CartPage());
-      },
-      child: Container(
-        height: 40,
-        width: 40,
-        decoration: const BoxDecoration(
-            color: AppColors.primary, shape: BoxShape.circle),
-        child: SvgPicture.asset(
-          AppVectors.bag,
-          fit: BoxFit.none,
-        ),
-      ),
-    );
+        onTap: () {
+          AppNavigator.push(context, const CartPage());
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          height: 50,
+          width: 50,
+          child: const Icon(Icons.shopping_bag_outlined, color: Color.fromARGB(255, 196, 175, 255), size: 30,),
+        )
+        // child: AnimatedContainer(
+        //   duration: const Duration(milliseconds: 300),
+        //   height: 50,
+        //   width: 50,
+        //   decoration: BoxDecoration(
+        //     color: AppColors.primary,
+        //     shape: BoxShape.circle,
+        //   ),
+        //   child: Center(
+        //     child: SvgPicture.asset(
+        //       AppVectors.bag,
+        //       fit: BoxFit.none,
+        //       color: Colors.white,
+        //     ),
+        //   ),
+        // ),
+        );
   }
 }

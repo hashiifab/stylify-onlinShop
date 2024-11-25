@@ -6,13 +6,14 @@ class BasicAppButton extends StatelessWidget {
   final Widget ? content;
   final double ? height;
   final double ? width;
-  const BasicAppButton({
+  const BasicAppButton({super.key, 
     required this.onPressed,
     this.title = '',
     this.height,
     this.width,
     this.content,
-    super.key
+   
+
   });
 
   @override

@@ -18,36 +18,32 @@ class ForgotPasswordPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const BasicAppbar(),
-      body: BlocProvider(
-        create: (context) => ButtonStateCubit(),
-        child: BlocListener<ButtonStateCubit, ButtonState>(
-          listener: (context, state) {
-            if (state is ButtonFailureState) {
-              var snackbar = SnackBar(
-                content: Text(state.errorMessage),
-                behavior: SnackBarBehavior.floating,
-              );
-              ScaffoldMessenger.of(context).showSnackBar(snackbar);
-            }
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
+        child: BlocProvider(
+          create: (context) => ButtonStateCubit(),
+          child: BlocListener<ButtonStateCubit, ButtonState>(
+            listener: (context, state) {
+              if (state is ButtonFailureState) {
+                _showSnackBar(
+                  context,
+                  message: state.errorMessage,
+                  isError: true,
+                );
+              }
 
-            if (state is ButtonSuccessState) {
-              AppNavigator.push(context, const PasswordResetEmailPage());
-            }
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
+              if (state is ButtonSuccessState) {
+                AppNavigator.push(context, const PasswordResetEmailPage());
+              }
+            },
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _siginText(),
-                const SizedBox(
-                  height: 20,
-                ),
-                _emailField(),
-                const SizedBox(
-                  height: 20,
-                ),
-                _continueButton(),
+                _forgotPasswordHeader(),
+                const SizedBox(height: 40),
+                _emailInputField(),
+                const SizedBox(height: 32),
+                _continueButton(context),
               ],
             ),
           ),
@@ -56,29 +52,85 @@ class ForgotPasswordPage extends StatelessWidget {
     );
   }
 
-  Widget _siginText() {
+  Widget _forgotPasswordHeader() {
     return const Text(
       'Forgot Password',
-      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+      style: TextStyle(
+        fontSize: 32,
+        fontWeight: FontWeight.bold,
+        height: 1.2,
+      ),
     );
   }
 
-  Widget _emailField() {
+  Widget _emailInputField() {
     return TextField(
       controller: _emailCon,
-      decoration: const InputDecoration(hintText: 'Enter Email'),
+      decoration: InputDecoration(
+        labelText: 'Email Address',
+        hintText: 'Enter your email',
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        prefixIcon: const Icon(Icons.email),
+      ),
+      keyboardType: TextInputType.emailAddress,
     );
   }
 
-  Widget _continueButton() {
-    return Builder(builder: (context) {
-      return BasicReactiveButton(
+  Widget _continueButton(BuildContext context) {
+    return Builder(
+      builder: (context) {
+        return BasicReactiveButton(
           onPressed: () {
-            context.read<ButtonStateCubit>().execute(
-                usecase: SendPasswordResetEmailUseCase(),
-                params: _emailCon.text);
+            if (_emailCon.text.isNotEmpty) {
+              context.read<ButtonStateCubit>().execute(
+                    usecase: SendPasswordResetEmailUseCase(),
+                    params: _emailCon.text,
+                  );
+            } else {
+              _showSnackBar(
+                context,
+                message: 'Email cannot be empty.',
+                isError: true,
+              );
+            }
           },
-          title: 'Continue');
-    });
+          title: 'Continue',
+        );
+      },
+    );
   }
+
+  void _showSnackBar(BuildContext context, {required String message, bool isError = false}) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Row(
+        children: [
+          Icon(
+            isError ? Icons.error_outline : Icons.check_circle_outline, // Menambahkan ikon error atau success
+            color: Colors.white,
+          ),
+          const SizedBox(width: 10),
+          Text(
+            message,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w600, // Menebalkan font agar lebih menonjol
+            ),
+          ),
+        ],
+      ),
+      backgroundColor: isError ? Colors.redAccent : Colors.green, // Warna latar belakang berdasarkan tipe pesan
+      behavior: SnackBarBehavior.floating, // SnackBar melayang di atas UI
+      shape: const RoundedRectangleBorder( // Sudut yang lebih melengkung
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+      ),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // Memberikan ruang di sekitar SnackBar
+      duration: const Duration(seconds: 3), // Durasi tampilan SnackBar
+    ),
+  );
+}
+
 }

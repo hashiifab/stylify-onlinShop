@@ -23,27 +23,33 @@ class ProductCard extends StatelessWidget {
       child: Container(
         width: 180,
         decoration: BoxDecoration(
-            color: AppColors.secondBackground,
-            borderRadius: BorderRadius.circular(8)),
+          color: AppColors.secondBackground,
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            // Bagian gambar
             Expanded(
               flex: 4,
               child: Container(
                 decoration: BoxDecoration(
-                    color: Colors.white,
-                    image: DecorationImage(
-                        fit: BoxFit.fill,
-                        image: NetworkImage(
-                            ImageDisplayHelper.generateProductImageURL(
-                                productEntity.images[0]))),
-                    borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(8),
-                        topRight: Radius.circular(8))),
+                  color: Colors.white,
+                  image: DecorationImage(
+                    fit: BoxFit.fill,
+                    image: NetworkImage(
+                      ImageDisplayHelper.generateProductImageURL(
+                          productEntity.images[0]),
+                    ),
+                  ),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(8),
+                    topRight: Radius.circular(8),
+                  ),
+                ),
               ),
             ),
+            // Bagian teks
             Expanded(
               flex: 1,
               child: Padding(
@@ -51,39 +57,43 @@ class ProductCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      productEntity.title,
-                      style: const TextStyle(
-                          fontSize: 12,
-                          overflow: TextOverflow.ellipsis,
-                          fontWeight: FontWeight.w300),
-                    ),
+                    // Harga dan diskon
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           productEntity.discountedPrice == 0
-                              ? "${productEntity.price}\$"
-                              : "${productEntity.discountedPrice}\$",
+                              ? "\$${productEntity.price}"
+                              : "\$${productEntity.discountedPrice}",
                           style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w300,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
                           ),
                         ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          productEntity.discountedPrice == 0
-                              ? ''
-                              : "${productEntity.price}\$",
-                          style: const TextStyle(
+                        if (productEntity.discountedPrice != 0)
+                          Text(
+                            "\$${productEntity.price}",
+                            style: const TextStyle(
                               fontSize: 12,
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w300,
-                              decoration: TextDecoration.lineThrough),
-                        ),
+                              color: Color.fromARGB(255, 213, 213, 213),
+                              decoration: TextDecoration.lineThrough,
+                            ),
+                          ),
                       ],
-                    )
+                    ),
+                    const SizedBox(height: 6),
+                    // Judul produk
+                    Text(
+                      productEntity.title,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        overflow: TextOverflow.ellipsis,
+                        color: Color.fromARGB(255, 251, 235, 255),
+                      ),
+                      maxLines: 2, // Membatasi hingga 2 baris teks
+                    ),
                   ],
                 ),
               ),

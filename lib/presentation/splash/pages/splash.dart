@@ -24,24 +24,28 @@ class SplashPage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AppColors.primary,
         body: Center(
-          child: Text(
-            'Stylify',
-            style: TextStyle(
-              fontSize: 40,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              letterSpacing: 4,
-              shadows: [
-                Shadow(
-                  blurRadius: 10.0,
-                  color: Colors.black.withOpacity(0.3),
-                  offset: const Offset(3, 3),
-                ),
-              ],
-              fontFamily: 'Poppins',
-            ),
-          ),
+          child: _buildSplashText(),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSplashText() {
+    return Text(
+      'Molina',
+      style: TextStyle(
+        fontSize: 40,
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+        letterSpacing: 5,
+        shadows: [
+          Shadow(
+            blurRadius: 10.0,
+            color: Colors.black.withOpacity(0.3),
+            offset: const Offset(3, 3),
+          ),
+        ],
+        fontFamily: 'Poppins',
       ),
     );
   }
